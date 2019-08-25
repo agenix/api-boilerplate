@@ -32,12 +32,12 @@ const rateLimiter = (req: express.Request, res: express.Response, next: express.
 
 // Configure CORS
 const corsOptions = {
-  origin: (origin: any, callback: any) => {
+  allowedHeaders: ['Accept', 'Authorization', 'Content-Length', 'Content-Type', 'X-Requested-With'],
+  methods: ['DELETE', 'GET', 'OPTIONS', 'POST', 'PUT'], optionsSuccessStatus: 200,
+  origin: (origin: string, callback: any) => {
     if (process.env.CORS_WHITELIST && process.env.CORS_WHITELIST.indexOf(origin) !== -1) callback(null, true);
     else callback('Not allowed by CORS');
   },
-  allowedHeaders: ['Accept', 'Authorization', 'Content-Length', 'Content-Type', 'X-Requested-With'],
-  methods: ['DELETE', 'GET', 'OPTIONS', 'POST', 'PUT'], optionsSuccessStatus: 200,
 };
 
 // Configure App
