@@ -37,7 +37,7 @@
         "label-position": true,
         "member-access": [true, "no-public"],
         "new-parens": true,
-        "no-angle-bracket-type-assertion": false,
+        "no-angle-bracket-type-assertion": true,
         "no-any": true,
         "no-arg": true,
         "no-conditional-assignment": true,

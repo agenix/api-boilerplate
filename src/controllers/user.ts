@@ -2,7 +2,7 @@ import * as Joi from '@hapi/joi';
 import * as bcrypt from 'bcrypt';
 import { NextFunction, Request, Response,  } from 'express';
 import * as jwt from 'jsonwebtoken';
-import UserModel, { IUser } from '../models/user';
+import { IUser, userModel  } from '../models/user';
 
 class User {
 
@@ -21,7 +21,7 @@ class User {
   static login = async (req: Request, res: Response) => {
     const email = req.body.email;
     const password = req.body.password;
-    const account = await UserModel.findOne({email}).exec();
+    const account = await userModel.findOne({email}).exec();
     if (!account) {
       res.status(400).send({ message: 'You have not registered' });
     } else {
@@ -50,13 +50,13 @@ class User {
   static register = async (req: Request, res: Response) => {
     const email = req.body.email;
     const password = req.body.password;
-    const alreadyRegistered = await UserModel.findOne({email}).exec();
+    const alreadyRegistered = await userModel.findOne({email}).exec();
     if (!alreadyRegistered) {
       const hashedPassword = await bcrypt.hash(password, 10);
       if (!hashedPassword) {
         res.status(500).send({ message: 'Failed to encrypt your password' });
       } else {
-        const user = new UserModel({email, password: hashedPassword} as IUser);
+        const user = new userModel({email, password: hashedPassword} as IUser);
         const saved = await user.save();
         if (!saved) {
           res.status(500).send({ message: 'Failed to register you' });
