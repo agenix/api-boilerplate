@@ -11,12 +11,12 @@
         "baseUrl": ".",
         "paths": {
             "*": [
-                "node_modules/",
-                "routes/types/*"
+                "node_modules/"
             ]
         }
     },
     "include": [
-        "routes/**/*", "routes/server.ts"
+        "src/**/*", 
+        "src/server.ts"
     ]
 }
