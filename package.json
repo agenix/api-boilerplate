@@ -1,0 +1,64 @@
+{
+  "name": "api-boilerplate",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node dist/server.js",
+    "dev": "nodemon --exec ts-node src/server.ts --watch src",
+    "test": "jest --watch",
+    "coverage": "jest --coverage",
+    "build": "tsc",
+    "watch-ts": "tsc -w",
+    "watch-node": "nodemon dist/server.js",
+    "watch": "npm run generate && concurrently -k -p \"[{name}]\" -n \"TypeScript, Node\" -c \"yello.bold, cyan.bold\" \"npm run watch-ts\" \"npm run watch-node\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agenix/api-boilerplate.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/agenix/api-boilerplate/issues"
+  },
+  "homepage": "https://github.com/agenix/api-boilerplate#readme",
+  "devDependencies": {
+    "@hapi/joi": "^15.1.1",
+    "@types/bcrypt": "^3.0.0",
+    "@types/bluebird": "^3.5.27",
+    "@types/cors": "^2.8.5",
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^4.17.0",
+    "@types/hapi__joi": "^15.0.3",
+    "@types/helmet": "0.0.43",
+    "@types/jest": "^24.0.15",
+    "@types/jsonwebtoken": "^8.3.3",
+    "@types/mongoose": "^5.5.6",
+    "@types/morgan": "^1.7.35",
+    "@types/node": "^12.0.10",
+    "@types/socket.io": "^2.1.2",
+    "jest": "^24.8.0",
+    "nodemon": "^1.19.1",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.2"
+  },
+  "dependencies": {
+    "bcrypt": "^3.0.6",
+    "bluebird": "^3.5.5",
+    "body-parser": "^1.19.0",
+    "compress": "^0.99.0",
+    "concurrently": "^4.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^8.0.0",
+    "express": "^4.17.1",
+    "helmet": "^3.18.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.6.2",
+    "morgan": "^1.9.1",
+    "rate-limiter-flexible": "^1.1.1",
+    "socket.io": "^2.2.0"
+  }
+}
