@@ -1,8 +1,8 @@
 import * as Joi from '@hapi/joi';
 import * as bcrypt from 'bcrypt';
-import { NextFunction, Request, Response,  } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
-import { Iuser, userModel  } from '../models/user';
+import { userModel, UserModelInterface } from '../models/user';
 
 class User {
 
@@ -56,7 +56,7 @@ class User {
       if (!hashedPassword) {
         res.status(500).send({ message: 'Failed to encrypt your password' });
       } else {
-        const user = new userModel({email, password: hashedPassword} as Iuser);
+        const user = new userModel({email, password: hashedPassword} as UserModelInterface);
         const saved = await user.save();
         if (!saved) {
           res.status(500).send({ message: 'Failed to register you' });
