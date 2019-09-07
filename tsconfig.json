@@ -9,6 +9,7 @@
         "sourceMap": true,
         "outDir": "dist",
         "baseUrl": ".",
+        "typeRoots": [ "./types", "./node_modules/@types"],
         "paths": {
             "*": [
                 "node_modules/"
@@ -16,7 +17,6 @@
         }
     },
     "include": [
-        "src/**/*", 
-        "src/server.ts"
+        "src/**/*"
     ]
 }

@@ -16,9 +16,7 @@ import { router } from './router';
 dotenv.config();
 
 // Connect to MongoDB
-declare module 'mongoose' {
-  type Promise<T> = bluebird<T>;
-}
+bluebird.promisifyAll(mongoose);
 mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}?retryWrites=true`,
 {useCreateIndex: true, useNewUrlParser: true});
 mongoose.connection.on('error', () => {
@@ -42,11 +40,12 @@ const options: cors.CorsOptions = {
   preflightContinue: false,
 };
 
-// Configure App
+// Configure Server
 const app = express();
 const server = new http.Server(app);
 const io = socketIo(server);
 
+// Configure App
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(cors(options));
