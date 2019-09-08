@@ -5,5 +5,6 @@ const router = Router();
 
 router.post('/user/login', User.validateLogin, User.login);
 router.post('/user/register', User.validateRegister, User.register);
+router.post('/user/confirm_email', User.validateConfirmEmail, User.confirmEmail);
 
 export {router};
