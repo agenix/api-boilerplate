@@ -3,6 +3,7 @@ import * as bcrypt from 'bcrypt';
 import {randomBytes} from 'crypto';
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
+import { Email } from '../components/email';
 import { userModel, UserModelInterface } from '../models/user';
 
 class User {
@@ -18,7 +19,7 @@ class User {
       if (!err) {
         req.body = val;
         next();
-      } else res.json(err.details);
+      } else res.status(400).send(err.details);
     });
   };
 
@@ -54,7 +55,7 @@ class User {
       if (!err) {
         req.body = val;
         next();
-      } else res.json(err.details);
+      } else res.status(400).send(err.details);
     });
   };
 
@@ -74,11 +75,13 @@ class User {
         if (!saved) {
           res.status(500).send({ message: 'Failed to register you' });
         } else {
-          const jwtToken = jwt.sign({
-            email: saved.email,
-            id: saved._id,
-          }, process.env.JWT_SECRET);
-          res.status(200).send({ message: 'You are now registered', jwtToken });
+          const jwtToken = jwt.sign({ email: saved.email, id: saved._id }, process.env.JWT_SECRET);
+          const sent = await Email.emailConfirmation(fullName, email, confirmationCode);
+          if (!sent) {
+            res.status(500).send({ message: 'Failed to send email', jwtToken });
+          } else  {
+            res.status(200).send({ message: 'You are now registered', jwtToken });
+          }
         }
       }
     } else {
@@ -95,17 +98,54 @@ class User {
       if (!err) {
         req.body = val;
         next();
-      } else res.json(err.details);
+      } else res.status(400).send(err.details);
     });
   };
 
   static confirmEmail = async (req: Request, res: Response) => {
     const confirmationCode = req.body.confirmationCode;
-    const account = await userModel.findOneAndUpdate({confirmationCode}, {$set: {emailConfirmed: true}}).exec();
-    if (!account) {
+    const alreadyConfirmed = await userModel.findOne({confirmationCode}).exec();
+    if (!alreadyConfirmed) {
       res.status(400).send({ message: 'Invalid confirmation code' });
-    } else {
-      res.status(200).send({ message: 'You confirmed your email' });
+    } else if (alreadyConfirmed && alreadyConfirmed.emailConfirmed) {
+      res.status(200).send({ message: 'You already confirmed your email' });
+    } else if (alreadyConfirmed && !alreadyConfirmed.emailConfirmed) {
+      const confirmed = await userModel.findOneAndUpdate({confirmationCode}, {$set: {emailConfirmed: true}}).exec();
+      if (confirmed) {
+        res.status(200).send({ message: 'Email confirmed' });
+      }
+    }
+  };
+
+  static validateResendEmail = async (req: Request, res: Response, next: NextFunction) => {
+    const schema = Joi.object().keys({
+      jwtToken: Joi.string().trim().required(),
+    });
+    const jwtToken = req.body.jwtToken;
+    Joi.validate({ jwtToken }, schema, (err, val) => {
+      if (!err) {
+        req.body = val;
+        next();
+      } else res.status(400).send(err.details);
+    });
+  };
+
+  static resendEmail = async (req: Request, res: Response) => {
+    interface JwtInterface { email: string; id: string; }
+    const jwtData = jwt.verify(req.body.jwtToken, process.env.JWT_SECRET);
+    const isJWTData = (input: object | string): input is JwtInterface => {
+       return typeof input === 'object' && 'id' in input;
+    };
+    if (isJWTData(jwtData)) {
+      const _id = jwtData.id;
+      const account = await userModel.findOne({_id}).exec();
+      const fullName = account.fullName;
+      const email = account.email;
+      const confirmationCode = account.confirmationCode;
+      const sent = await Email.emailConfirmation(fullName, email, confirmationCode);
+      if (sent) {
+        res.status(200).send({ message: 'Email resent' });
+      }
     }
   };
 
