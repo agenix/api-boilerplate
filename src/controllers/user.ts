@@ -24,17 +24,17 @@ class User {
   };
 
   static login = async (req: Request, res: Response) => {
-    const email = req.body.email;
+    const email = req.body.email.toLowerCase();
     const password = req.body.password;
     const account = await userModel.findOne({email}).exec();
-    const fullName = account.fullName;
-    const emailConfirmed = account.emailConfirmed;
     if (!account) {
       res.status(400).send({ message: 'You have not registered' });
     } else {
+      const fullName = account.fullName;
+      const emailConfirmed = account.emailConfirmed;
       const passwordsMatch = await bcrypt.compare(password, account.password);
       if (!passwordsMatch) {
-        res.status(400).send({ message: 'Incorrect Password' });
+        res.status(400).send({ message: 'Incorrect email or password' });
       } else {
         const jwtToken = jwt.sign({ email: account.email, id: account._id }, process.env.JWT_SECRET);
         res.status(200).send({ message: 'You are now logged-in', jwtToken, fullName, emailConfirmed});
