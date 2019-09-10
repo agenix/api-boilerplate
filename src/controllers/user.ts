@@ -10,11 +10,10 @@ class User {
 
   static validateLogin = async (req: Request, res: Response, next: NextFunction) => {
     const schema = Joi.object().keys({
-      email: Joi.string().email({ minDomainSegments: 2 }),
+      email: Joi.string().lowercase().trim().email({ minDomainSegments: 2 }),
       password: Joi.string().min(5),
     });
-    const email = req.body.email;
-    const password = req.body.password;
+    const { email, password } = req.body;
     Joi.validate({ email, password }, schema, (err, val) => {
       if (!err) {
         req.body = val;
@@ -24,14 +23,12 @@ class User {
   };
 
   static login = async (req: Request, res: Response) => {
-    const email = req.body.email.toLowerCase();
-    const password = req.body.password;
+    const { email, password } = req.body;
     const account = await userModel.findOne({email}).exec();
     if (!account) {
       res.status(400).send({ message: 'You have not registered' });
     } else {
-      const fullName = account.fullName;
-      const emailConfirmed = account.emailConfirmed;
+      const {fullName, emailConfirmed} = account;
       const passwordsMatch = await bcrypt.compare(password, account.password);
       if (!passwordsMatch) {
         res.status(400).send({ message: 'Incorrect email or password' });
@@ -48,9 +45,7 @@ class User {
       fullName: Joi.string().trim().max(30),
       password: Joi.string().trim().min(5),
     });
-    const email = req.body.email;
-    const password = req.body.password;
-    const fullName = req.body.fullName;
+    const { email, password, fullName } = req.body;
     Joi.validate({ email, password, fullName }, schema, (err, val) => {
       if (!err) {
         req.body = val;
@@ -60,9 +55,7 @@ class User {
   };
 
   static register = async (req: Request, res: Response) => {
-    const email = req.body.email;
-    const password = req.body.password;
-    const fullName = req.body.fullName;
+    const { email, password, fullName } = req.body;
     const confirmationCode = randomBytes(20).toString('hex');
     const alreadyRegistered = await userModel.findOne({email}).exec();
     if (!alreadyRegistered) {
@@ -93,7 +86,7 @@ class User {
     const schema = Joi.object().keys({
       confirmationCode: Joi.string().trim().min(40).required(),
     });
-    const confirmationCode = req.body.confirmationCode;
+    const { confirmationCode } = req.body;
     Joi.validate({ confirmationCode }, schema, (err, val) => {
       if (!err) {
         req.body = val;
@@ -103,7 +96,7 @@ class User {
   };
 
   static confirmEmail = async (req: Request, res: Response) => {
-    const confirmationCode = req.body.confirmationCode;
+    const { confirmationCode } = req.body;
     const alreadyConfirmed = await userModel.findOne({confirmationCode}).exec();
     if (!alreadyConfirmed) {
       res.status(400).send({ message: 'Invalid confirmation code' });
@@ -121,7 +114,7 @@ class User {
     const schema = Joi.object().keys({
       jwtToken: Joi.string().trim().required(),
     });
-    const jwtToken = req.body.jwtToken;
+    const { jwtToken } = req.body;
     Joi.validate({ jwtToken }, schema, (err, val) => {
       if (!err) {
         req.body = val;
@@ -139,9 +132,7 @@ class User {
     if (isJWTData(jwtData)) {
       const _id = jwtData.id;
       const account = await userModel.findOne({_id}).exec();
-      const fullName = account.fullName;
-      const email = account.email;
-      const confirmationCode = account.confirmationCode;
+      const { fullName, email, confirmationCode } = account;
       const sent = await Email.emailConfirmation(fullName, email, confirmationCode);
       if (sent) {
         res.status(200).send({ message: 'Email resent' });
