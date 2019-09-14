@@ -69,7 +69,7 @@ class User {
           res.status(500).send({ message: 'Failed to register you' });
         } else {
           const jwtToken = jwt.sign({ email: saved.email, id: saved._id }, process.env.JWT_SECRET);
-          const sent = await Email.emailConfirmation(fullName, email, confirmationCode);
+          const sent = await Email.confirmEmail(fullName, email, confirmationCode);
           if (!sent) {
             res.status(500).send({ message: 'Failed to send email', jwtToken });
           } else  {
@@ -133,11 +133,28 @@ class User {
       const _id = jwtData.id;
       const account = await userModel.findOne({_id}).exec();
       const { fullName, email, confirmationCode } = account;
-      const sent = await Email.emailConfirmation(fullName, email, confirmationCode);
+      const sent = await Email.confirmEmail(fullName, email, confirmationCode);
       if (sent) {
         res.status(200).send({ message: 'Email resent' });
       }
     }
+  };
+
+
+  static validateReset = async (req: Request, res: Response, next: NextFunction) => {
+    const schema = Joi.object().keys({
+      email: Joi.string().lowercase().trim().email({ minDomainSegments: 2 }),
+    });
+    const { email } = req.body;
+    Joi.validate({ email }, schema, (err, val) => {
+      if (!err) {
+        req.body = val;
+        next();
+      } else res.status(400).send(err.details);
+    });
+  };
+  static reset = async (req: Request, res: Response) => {
+    res.status(200).send({ message: 'You already confirmed your email' });
   };
 
 }
