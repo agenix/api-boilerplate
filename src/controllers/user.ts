@@ -69,7 +69,8 @@ class User {
           res.status(500).send({ message: 'Failed to register you' });
         } else {
           const jwtToken = jwt.sign({ email: saved.email, id: saved._id }, process.env.JWT_SECRET);
-          const sent = await Email.confirmEmail(fullName, email, confirmationCode);
+          // const sent = await Email.confirmEmail(fullName, email, confirmationCode);
+          const sent = true;
           if (!sent) {
             res.status(500).send({ message: 'Failed to send email', jwtToken });
           } else  {
