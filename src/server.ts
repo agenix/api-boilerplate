@@ -14,7 +14,7 @@ import { router } from './router';
 
 // Set env values
 dotenv.config();
-
+console.log(process.env.NODE_ENV);
 // Connect to MongoDB
 bluebird.promisifyAll(mongoose);
 mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}?retryWrites=true`,

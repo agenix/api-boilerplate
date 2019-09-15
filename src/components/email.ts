@@ -6,9 +6,16 @@ AWS.config.update({
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
 
+let frontEndUrl: string;
+if (process.env.NODE_ENV === 'production') frontEndUrl = process.env.PROD_FRONT_END_URL;
+else frontEndUrl = process.env.DEV_FRONT_END_URL;
+
 class Email {
+
   static confirmEmail = async (fullName: string, email: string, confirmationCode: string) => {
     try {
+
+
       const html = `
       <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
       <html xmlns="http://www.w3.org/1999/xhtml">
@@ -22,11 +29,11 @@ class Email {
           <hr/>
           Hi, ${fullName}.<br/>
           Please confirm your Worbli account by clicking this link:
-          http://127.0.0.1:3000/confirm_email/${confirmationCode}/<br/>
+          ${frontEndUrl}/confirm_email/${confirmationCode}/<br/>
           Once you confirm, you will have full access to Worbli and all future<br/>
           notifications will be sent to this email address.<br/><br/>
           - Team Worbli<br/><br/>
-          Control which emails you receive from Worbli by adjusting your <a href='http://127.0.0.1:3000/my/settings/'>settings.<a/>
+          Control which emails you receive from Worbli by adjusting your <a href='${frontEndUrl}/my/settings/'>settings.<a/>
         </body>
       </html>
       `;
@@ -59,9 +66,9 @@ class Email {
           <hr/>
           Hi, ${fullName}.<br/>
           If you requested a password reset link, click the link below. If you didn’t make the request, you can safely discard this email.
-          http://127.0.0.1:3000/reset_password/${resetCode}/<br/><br/>
+          ${frontEndUrl}/reset_password/${resetCode}/<br/><br/>
           - Team Worbli<br/><br/>
-          Control which emails you receive from Worbli by adjusting your <a href='http://127.0.0.1:3000/my/settings/'>settings.<a/>
+          Control which emails you receive from Worbli by adjusting your <a href='${frontEndUrl}/my/settings/'>settings.<a/>
         </body>
       </html>
       `;
