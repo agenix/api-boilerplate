@@ -17,7 +17,7 @@ dotenv.config();
 // Connect to MongoDB
 bluebird.promisifyAll(mongoose);
 mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}?retryWrites=true`,
-{useCreateIndex: true, useNewUrlParser: true});
+{useCreateIndex: true, useNewUrlParser: true, useFindAndModify: false});
 mongoose.connection.on('error', () => {
   throw new Error(`unable to connect to database: ${process.env.DB_NAME}`);
 });

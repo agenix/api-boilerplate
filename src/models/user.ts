@@ -7,6 +7,7 @@ interface UserModelInterface extends Document {
   password: string;
   confirmationCode: string;
   emailConfirmed: boolean;
+  resetPasswordCode: string;
 }
 
 const userSchema: Schema = new Schema({
@@ -15,6 +16,10 @@ const userSchema: Schema = new Schema({
   emailConfirmed: { type: Boolean, default: false },
   fullName: { type: String, required: true },
   password: { type: String, required: true },
+  resetPasswordCode: { type: String, unique: true },
+},
+{
+  timestamps: true,
 });
 
 const userModel = mongoose.model<UserModelInterface>('User', userSchema);

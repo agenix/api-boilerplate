@@ -60,27 +60,20 @@ class User {
     const alreadyRegistered = await userModel.findOne({email}).exec();
     if (!alreadyRegistered) {
       const hashedPassword = await bcrypt.hash(password, 10);
-      if (!hashedPassword) {
-        res.status(500).send({ message: 'Failed to encrypt your password' });
-      } else {
+      if (!hashedPassword) res.status(500).send({ message: 'Failed to encrypt your password' });
+      else {
         const user = new userModel({email, password: hashedPassword, fullName, confirmationCode} as UserModelInterface);
         const saved = await user.save();
-        if (!saved) {
-          res.status(500).send({ message: 'Failed to register you' });
-        } else {
+        if (!saved) res.status(500).send({ message: 'Failed to register you' });
+        else {
           const jwtToken = jwt.sign({ email: saved.email, id: saved._id }, process.env.JWT_SECRET);
           // const sent = await Email.confirmEmail(fullName, email, confirmationCode);
           const sent = true;
-          if (!sent) {
-            res.status(500).send({ message: 'Failed to send email', jwtToken });
-          } else  {
-            res.status(200).send({ message: 'You are now registered', jwtToken });
-          }
+          if (!sent) res.status(500).send({ message: 'Failed to send email', jwtToken });
+          else res.status(200).send({ message: 'You are now registered', jwtToken });
         }
       }
-    } else {
-      res.status(400).send({ message: 'You have already registered' });
-    }
+    } else res.status(400).send({ message: 'You have already registered' });
   };
 
   static validateConfirmEmail = async (req: Request, res: Response, next: NextFunction) => {
@@ -105,9 +98,7 @@ class User {
       res.status(200).send({ message: 'You already confirmed your email' });
     } else if (alreadyConfirmed && !alreadyConfirmed.emailConfirmed) {
       const confirmed = await userModel.findOneAndUpdate({confirmationCode}, {$set: {emailConfirmed: true}}).exec();
-      if (confirmed) {
-        res.status(200).send({ message: 'Email confirmed' });
-      }
+      if (confirmed) res.status(200).send({ message: 'Email confirmed' });
     }
   };
 
@@ -135,12 +126,9 @@ class User {
       const account = await userModel.findOne({_id}).exec();
       const { fullName, email, confirmationCode } = account;
       const sent = await Email.confirmEmail(fullName, email, confirmationCode);
-      if (sent) {
-        res.status(200).send({ message: 'Email resent' });
-      }
+      if (sent) res.status(200).send({ message: 'Email resent' });
     }
   };
-
 
   static validateResetPassword = async (req: Request, res: Response, next: NextFunction) => {
     const schema = Joi.object().keys({
@@ -154,8 +142,18 @@ class User {
       } else res.status(400).send(err.details);
     });
   };
+
   static resetPassword = async (req: Request, res: Response) => {
-    res.status(200).send({ message: 'You already confirmed your email' });
+    const { email } = req.body;
+    const resetCode = randomBytes(20).toString('hex');
+    const account = await userModel.findOneAndUpdate({email}, {$set: {resetPasswordCode: resetCode}}).exec();
+    if (!account) res.status(400).send({ message: 'You need to register first' });
+    else {
+      const {fullName, resetPasswordCode} = account;
+      // const sent = await Email.confirmEmail(fullName, email, resetPasswordCode);
+      const sent = true;
+      if (sent) res.status(200).send({ message: 'Reset password email sent' });
+    }
   };
 
   static validateConfirmPassword = async (req: Request, res: Response, next: NextFunction) => {
@@ -170,6 +168,7 @@ class User {
       } else res.status(400).send(err.details);
     });
   };
+
   static confirmPassword = async (req: Request, res: Response) => {
     res.status(200).send({ message: 'You already confirmed your password' });
   };
