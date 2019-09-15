@@ -142,7 +142,7 @@ class User {
   };
 
 
-  static validateReset = async (req: Request, res: Response, next: NextFunction) => {
+  static validateResetPassword = async (req: Request, res: Response, next: NextFunction) => {
     const schema = Joi.object().keys({
       email: Joi.string().lowercase().trim().email({ minDomainSegments: 2 }),
     });
@@ -154,8 +154,24 @@ class User {
       } else res.status(400).send(err.details);
     });
   };
-  static reset = async (req: Request, res: Response) => {
+  static resetPassword = async (req: Request, res: Response) => {
     res.status(200).send({ message: 'You already confirmed your email' });
+  };
+
+  static validateConfirmPassword = async (req: Request, res: Response, next: NextFunction) => {
+    const schema = Joi.object().keys({
+      password: Joi.string().trim().min(5),
+    });
+    const { password } = req.body;
+    Joi.validate({ password }, schema, (err, val) => {
+      if (!err) {
+        req.body = val;
+        next();
+      } else res.status(400).send(err.details);
+    });
+  };
+  static confirmPassword = async (req: Request, res: Response) => {
+    res.status(200).send({ message: 'You already confirmed your password' });
   };
 
 }
