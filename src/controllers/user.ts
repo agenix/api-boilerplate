@@ -96,7 +96,10 @@ class User {
     } else if (alreadyConfirmed && alreadyConfirmed.emailConfirmed) {
       res.status(200).send({ message: 'You already confirmed your email' });
     } else if (alreadyConfirmed && !alreadyConfirmed.emailConfirmed) {
-      const confirmed = await userModel.findOneAndUpdate({confirmationCode}, {$set: {emailConfirmed: true}}).exec();
+      const confirmed = await userModel.findOneAndUpdate({confirmationCode}, {
+        $set: {emailConfirmed: true},
+        $unset: {confirmationCode: ''},
+      }).exec();
       if (confirmed) res.status(200).send({ message: 'Email confirmed' });
     }
   };
