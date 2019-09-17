@@ -67,8 +67,7 @@ class User {
         if (!saved) res.status(500).send({ message: 'Failed to register you' });
         else {
           const jwtToken = jwt.sign({ email: saved.email, id: saved._id }, process.env.JWT_SECRET);
-          // const sent = await Email.confirmEmail(fullName, email, confirmationCode);
-          const sent = true;
+          const sent = await Email.confirmEmail(fullName, email, confirmationCode);
           if (!sent) res.status(500).send({ message: 'Failed to send email', jwtToken });
           else res.status(200).send({ message: 'You are now registered', jwtToken });
         }
@@ -146,22 +145,25 @@ class User {
   static resetPassword = async (req: Request, res: Response) => {
     const { email } = req.body;
     const resetCode = randomBytes(20).toString('hex');
-    const account = await userModel.findOneAndUpdate({email}, {$set: {resetPasswordCode: resetCode}}).exec();
+    const account = await userModel.findOneAndUpdate({email}, {$set: {
+      resetPasswordCode: resetCode,
+      resetSentAt: Date.now(),
+    }}).exec();
     if (!account) res.status(400).send({ message: 'You need to register first' });
     else {
       const {fullName, resetPasswordCode} = account;
-      // const sent = await Email.confirmEmail(fullName, email, resetPasswordCode);
-      const sent = true;
+      const sent = await Email.confirmEmail(fullName, email, resetPasswordCode);
       if (sent) res.status(200).send({ message: 'Reset password email sent' });
     }
   };
 
   static validateConfirmPassword = async (req: Request, res: Response, next: NextFunction) => {
     const schema = Joi.object().keys({
-      password: Joi.string().trim().min(5),
+      newPassword: Joi.string().trim().min(5),
+      resetPasswordCode: Joi.string().trim().min(39),
     });
-    const { password } = req.body;
-    Joi.validate({ password }, schema, (err, val) => {
+    const { newPassword, resetPasswordCode } = req.body;
+    Joi.validate({ newPassword, resetPasswordCode }, schema, (err, val) => {
       if (!err) {
         req.body = val;
         next();
@@ -170,9 +172,20 @@ class User {
   };
 
   static confirmPassword = async (req: Request, res: Response) => {
-    res.status(200).send({ message: 'You already confirmed your password' });
+    const { newPassword, resetPasswordCode } = req.body;
+    const account = await userModel.findOne({resetPasswordCode}).exec();
+    if (!account) res.status(400).send({ message: 'Reset code is invalid' });
+    const hours = Math.floor((Date.now() - Date.parse(account.resetSentAt)) / 3600000);
+    if (hours >= 12) res.status(400).send({ message: 'Reset code is invalid' });
+    else {
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      const updated = await userModel.findOneAndUpdate({resetPasswordCode}, {
+        $set: {password: hashedPassword},
+        $unset: {resetPasswordCode: '', resetSentAt: ''},
+      }).exec();
+      if (updated) res.status(200).send({ message: 'Password reset' });
+    }
   };
-
 }
 
 export {User};

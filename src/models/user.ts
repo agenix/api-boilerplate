@@ -8,6 +8,7 @@ interface UserModelInterface extends Document {
   confirmationCode: string;
   emailConfirmed: boolean;
   resetPasswordCode: string;
+  resetSentAt: string;
 }
 
 const userSchema: Schema = new Schema({
@@ -16,7 +17,8 @@ const userSchema: Schema = new Schema({
   emailConfirmed: { type: Boolean, default: false },
   fullName: { type: String, required: true },
   password: { type: String, required: true },
-  resetPasswordCode: { type: String, unique: true },
+  resetPasswordCode: { type: String },
+  resetSentAt: { type: Date },
 },
 {
   timestamps: true,
