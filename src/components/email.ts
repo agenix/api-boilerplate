@@ -1,9 +1,9 @@
 import AWS = require('aws-sdk');
 
 AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  accessKeyId: process.env.SES_ACCESS_KEY_ID,
   region: 'us-east-1',
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  secretAccessKey: process.env.SES_SECRET_ACCESS_KEY,
 });
 
 let frontEndUrl: string;
