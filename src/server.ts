@@ -1,4 +1,3 @@
-import * as bluebird from 'bluebird';
 import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 import * as dotenv from 'dotenv';
@@ -8,27 +7,17 @@ import * as http from 'http';
 import * as mongoose from 'mongoose';
 import * as morgan from 'morgan';
 import * as path from 'path';
-import { RateLimiterMongo } from 'rate-limiter-flexible';
 import * as socketIo from 'socket.io';
 import { router } from './router';
 
 // Set env values
 dotenv.config();
 // Connect to MongoDB
-bluebird.promisifyAll(mongoose);
 mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}?retryWrites=true`,
 {useCreateIndex: true, useNewUrlParser: true, useFindAndModify: false});
 mongoose.connection.on('error', () => {
   throw new Error(`unable to connect to database: ${process.env.DB_NAME}`);
 });
-
-// Configure Rate Limiter
-const rateLimiterMongo = new RateLimiterMongo({storeClient: mongoose.connection, points: 4, duration: 1});
-const rateLimiter = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  rateLimiterMongo.consume(req.ip)
-    .then(() => next())
-    .catch(() => res.status(429).send('Whoa! Slow down there little buddy'));
-};
 
 // Configure CORS
 const options: cors.CorsOptions = {
@@ -49,7 +38,6 @@ app.use(helmet());
 app.use(morgan('dev'));
 app.use(cors(options));
 app.options('*', cors(options));
-app.use(rateLimiter);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
