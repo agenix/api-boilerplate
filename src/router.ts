@@ -1,14 +1,15 @@
 import {Router} from 'express';
-import {User} from './controllers/user';
+import {Login} from './controllers/login';
+import {Register} from './controllers/register';
 
 const router = Router();
 
-router.post('/user/login', User.validateLogin, User.login);
-router.post('/user/reset_password', User.validateResetPassword, User.resetPassword);
-router.post('/user/confirm_password', User.validateConfirmPassword, User.confirmPassword);
+router.post('/login', Login.validateLogin, Login.login);
+router.post('/login/reset_password', Login.validateResetPassword, Login.resetPassword);
+router.post('/login/confirm_password', Login.validateConfirmPassword, Login.confirmPassword);
 
-router.post('/user/register', User.validateRegister, User.register);
-router.post('/user/resend_email', User.validateResendEmail, User.resendEmail);
-router.post('/user/confirm_email', User.validateConfirmEmail, User.confirmEmail);
+router.post('/register', Register.validateRegister, Register.register);
+router.post('/register/resend_email', Register.validateResendEmail, Register.resendEmail);
+router.post('/register/confirm_email', Register.validateConfirmEmail, Register.confirmEmail);
 
 export {router};
