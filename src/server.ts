@@ -14,7 +14,7 @@ import { router } from './router';
 dotenv.config();
 // Connect to MongoDB
 mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}?retryWrites=true`,
-{useCreateIndex: true, useNewUrlParser: true, useFindAndModify: false});
+{useCreateIndex: true, useNewUrlParser: true, useFindAndModify: false, useUnifiedTopology: true});
 mongoose.connection.on('error', () => {
   throw new Error(`unable to connect to database: ${process.env.DB_NAME}`);
 });

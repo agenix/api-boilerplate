@@ -45,7 +45,7 @@ class Email {
       if (!data) return false; else return true;
     } catch (err) {
         // tslint:disable-next-line: no-console
-        console.log(err);
+        console.log(err.message);
     }
   };
 
@@ -80,7 +80,7 @@ class Email {
       if (!data) return false; else return true;
     } catch (err) {
         // tslint:disable-next-line: no-console
-        console.log(err);
+        console.log(err.message);
     }
   };
 }
