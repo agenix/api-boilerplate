@@ -10,9 +10,9 @@ class Register {
 
 static validateRegister = async (req: Request, res: Response, next: NextFunction) => {
     const schema = Joi.object().keys({
-      email: Joi.string().lowercase().trim().email({ minDomainSegments: 2 }),
-      fullName: Joi.string().trim().max(30),
-      password: Joi.string().trim().min(5),
+      email: Joi.string().lowercase().trim().email({ minDomainSegments: 2 }).required(),
+      fullName: Joi.string().trim().max(30).required(),
+      password: Joi.string().trim().min(5).required(),
     });
     const { email, password, fullName } = req.body;
     Joi.validate({ email, password, fullName }, schema, (err, val) => {
